@@ -142,9 +142,10 @@ def print_percent_queue(percent_dict):
         print(out_str)
 
 
-def main_generate_list(bucket, output_filename):
+def main_generate_list(bucket):
     '''generates a file list from whole bucket (only files in glacier or deep_archive tier)'''
 
+    output_filename = f'{bucket}.objects'
     if path.exists(output_filename):
         input_overwrite_continue = input(f'File {output_filename} already exists and will be overwritten\nContinue? y/[n]: ')
         if input_overwrite_continue != 'y':
@@ -176,8 +177,8 @@ def main_generate_list(bucket, output_filename):
             output_list.write(f'{obj}\n')
 
 
-def main_request_objects_restore(bucket, object_list_path, retain_for, retrieval_tier, thread_count):
-
+def main_request_objects_restore(bucket, retain_for, retrieval_tier, thread_count):
+    object_list_filename = f'{bucket}.objects'
     progress_logfile = f'{bucket}.progress'
     availability_logfile = f'{bucket}.available'
     progress_logger = setup_logger(progress_logfile)
@@ -191,7 +192,7 @@ def main_request_objects_restore(bucket, object_list_path, retain_for, retrieval
         availability_log = read_file(availability_logfile)
 
     print('')
-    lines = read_file(object_list_path)
+    lines = read_file(object_list_filename)
     if len(progress_log) > 0:
         prev_len = len(lines)
         lines = diff(lines, progress_log)
@@ -239,21 +240,21 @@ def main_request_objects_restore(bucket, object_list_path, retain_for, retrieval
     print(f'Execution took {exec_time}s')
 
 
-def main_check_restore_status(bucket, object_list_path, thread_count):
-
+def main_check_restore_status(bucket, thread_count):
+    object_list_filename = f'{bucket}.objects'
     availability_logfile = f'bucket_{bucket}.available'
     availability_logger = setup_logger(availability_logfile)
 
     availability_log = []
     file_list = []
 
-    if not path.exists(object_list_path):
-        print(f'{object_list_path} not found. Cancelling')
+    if not path.exists(object_list_filename):
+        print(f'{object_list_filename} not found. Cancelling')
         print('If you dont have any file with path list, run `Generate file list` option first')
         return
 
     print('')
-    file_list = read_file(object_list_path)
+    file_list = read_file(object_list_filename)
 
     if path.exists(availability_logfile):
         availability_log = read_file(availability_logfile)
@@ -292,7 +293,7 @@ def main_check_restore_status(bucket, object_list_path, thread_count):
     print(f'Execution took {time.time()-timer_start}')
     print('')
     new_availability_list = read_file(availability_logfile)
-    new_file_list = read_file(object_list_path)
+    new_file_list = read_file(object_list_filename)
     print(f'{len(new_availability_list)} files are restored and ready for download')
     print(f'{len(new_file_list)-len(new_availability_list)} files is still being restored')
 
@@ -306,17 +307,14 @@ def main():
 
     subparsers = parser.add_subparsers(dest='subcommand', required=True)
 
-    generate_parser = subparsers.add_parser('generate-object-list')
-    generate_parser.add_argument('--output-object-list-path')
+    subparsers.add_parser('generate-object-list')
 
     request_parser = subparsers.add_parser('request-objects-restore')
     request_parser.add_argument('--retain-for', required=True, help='How long to keep objects restored')
-    request_parser.add_argument('--object-list-path')
     request_parser.add_argument('--retrieval-tier', default='Standard', choices=['Standard', 'Bulk', 'Expedited'])
     request_parser.add_argument('--thread-count', default=int(multiprocessing.cpu_count()))
 
     check_parser = subparsers.add_parser('check-objects-status')
-    check_parser.add_argument('--object-list-path')
     check_parser.add_argument('--thread-count', default=int(multiprocessing.cpu_count()))
 
     args = parser.parse_args()
@@ -325,27 +323,13 @@ def main():
 
     if args.subcommand == 'generate-object-list':
         print('Command: Generate list of objects to restore from specified S3 bucket')
-        
-        if args.output_object_list_path is None:
-            args.output_object_list_path = f'{args.bucket}.objects'
-
-        main_generate_list(args.bucket, args.output_object_list_path)
-
+        main_generate_list(args.bucket)
     elif args.subcommand == 'request-objects-restore':
         print('Command: Request restoration of objects')
-
-        if args.object_list_path is None:
-            args.object_list_path = f'{args.bucket}.objects'
-
-        main_request_objects_restore(args.bucket, args.object_list_path, args.retain_for, args.retrieval_tier, args.thread_count)
-
+        main_request_objects_restore(args.bucket, args.retain_for, args.retrieval_tier, args.thread_count)
     elif args.subcommand == 'check-objects-status':
         print('Command: Check objects status to verify completeness')
-
-        if args.object_list_path is None:
-            args.object_list_path = f'{args.bucket}.objects'
-
-        main_check_restore_status(args.bucket, args.object_list_path, args.thread_count)
+        main_check_restore_status(args.bucket, args.thread_count)
 
 
 if __name__ == '__main__':
