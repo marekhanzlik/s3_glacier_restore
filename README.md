@@ -23,7 +23,7 @@ You can specify an `--aws-profile` parameter to use specified profile from `~/.a
 
 ### Subcommands
 #
-`generate-object-list` ganerates a file list into `<bucket>.objects` file  
+`generate-object-list` ganerates a object list into `<bucket>.objects` file (all objects in bucket)  
 #
 `request-objects-restore` uses `<bucket>.objects` object list and saves names of already requested objects to `<bucket>.progress` file
 
@@ -39,10 +39,11 @@ Parameters:
 #
 
 ### Generating a list
+This command will traverse whole bucket and list all files inside
 ```
 ./s3_restore.py --bucket <your_bucket> genereate-object-list
 ```
-If you have your own list of files you want to restore, save it to file and name it `<your_bucket>.objects`
+If you want to retrieve only subset of files and have your own list, save it to file and name it `<your_bucket>.objects` and run `request-objects-restore` subcommand
 
 ### Requesting a retrieval
 ```
