@@ -23,16 +23,19 @@ You can specify an `--aws-profile` parameter to use specified profile from `~/.a
 
 ### Subcommands
 #
-`generate-object-list` ganerates a object list into `<bucket>.objects` file (all objects in bucket)  
+`generate-object-list`  
+ganerates a object list into `<bucket>.objects` file (all objects in bucket)  
 #
-`request-objects-restore` uses `<bucket>.objects` object list and saves names of already requested objects to `<bucket>.progress` file
+`request-objects-restore`  
+uses `<bucket>.objects` object list and saves names of already requested objects to `<bucket>.progress` file
 
 Parameteres:  
 `--retain-for` number of days you want to keep objects restored [Required]  
 `--retrieval-tier` Standard, Bulk, Expedited (default: Standard) [Optional]  
 `--thread-count` (default: num of cpu in your machine) [Optional]
 #
-`check-objects-status` uses `<bucket>.objects` object list, compares it to `<bucket>.available` and check only files which are not already ready for download  
+`check-objects-status`  
+uses `<bucket>.objects` object list, compares it to `<bucket>.available` and check only files which are not already ready for download  
 
 Parameters:
 `--thread-count` (default: num of cpu in your machine) [Optional]
