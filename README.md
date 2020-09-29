@@ -42,11 +42,19 @@ Parameters:
 #
 
 ### Generating a list
-This command will traverse whole bucket and list all files inside
+This command will traverse whole bucket and list all objects inside
 ```
 ./s3_restore.py --bucket <your_bucket> genereate-object-list
 ```
-If you want to retrieve only subset of files and have your own list, save it to file and name it `<your_bucket>.objects` and run `request-objects-restore` subcommand
+If you want to retrieve only some objects, you have to generate list yourself, just paste your object paths to file with name `<your_bucket>.objects`  
+in format:
+```
+/object1.jpg
+/object2.jpg
+/some/other/object.jpg
+... etc
+```
+and run `request-objects-restore` subcommand
 
 ### Requesting a retrieval
 ```
