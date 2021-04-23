@@ -73,7 +73,3 @@ I did not create any benchmarks but in my case requesting retrieval of 700 000 f
 For best performance i recommend creating an EC2 Instance (preferably in same region as your bucket, and with many cores to utilize multithreading) and running it from there, latency is so much lower and in benefit of it the request rate is so much higher :)
 
 The AWS S3 `POST` request limit is around 3500req/s so be aware that there are paralelization limits and set your thread count accordingly (if i remember correctly the request rate for single thread is around 5-10req/s)
-
-## Remarks
-This tool is the fastest one available on the internet (or at least was in times of writing [mid 2019])  
-**If you found something better let me know!**
